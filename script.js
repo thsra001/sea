@@ -48,6 +48,18 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setClearColor(0xaaaaaa, 1);
 // Append the renderer canvas into <body>
 document.body.appendChild(renderer.domElement);
+// add sky
+const skyloader = new THREE.CubeTextureLoader();
+  const skytexture = skyloader.load([
+    'tex/sky/px.png',
+    'tex/sky/nx.png',
+    'tex/sky/py.png',
+    'tex/sky/ny.png',
+    'tex/sky/pz.png',
+    'tex/sky/nz.png',
+  ]);
+  scene.background = skytexture;
+
 //add Controls
 const controls = new PointerLockControls(camera, renderer.domElement);
 scene.add(controls.getObject())
@@ -277,7 +289,7 @@ function create(pos) {
 } // font text load
 const loader = new FontLoader();
 
-loader.load('./tex/rainyheart.json', function(font) {
+loader.load('./tex/bigblue.json', function(font) {
 
   const geometry = new TextGeometry('cube stacking simulator test', {
     font: font,
