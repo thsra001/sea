@@ -45,6 +45,15 @@ async function run_simulation() {
   renderer.setClearColor(0xaaaaaa, 1);
   // Append the renderer canvas into <body>
   document.body.appendChild(renderer.domElement);
+  // add canvas rescaling
+  window.addEventListener( 'resize', onWindowResize, false );
+
+function onWindowResize() {
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+}
   // add sky
   const skyloader = new THREE.CubeTextureLoader();
   const skytexture = skyloader.load([
@@ -242,7 +251,7 @@ async function run_simulation() {
   let importcoords = cube.mesh.geometry.attributes.position.array
   let dyna = RAPIER.RigidBodyDesc.fixed()
   let dyna2 = world.createRigidBody(dyna);
-  let clDesc = RAPIER.ColliderDesc.cuboid(20, 0.1, 20)
+  let clDesc = RAPIER.ColliderDesc.cuboid(15, 0.1, 15)
   let cl = world.createCollider(clDesc, dyna2)
   cube.mesh.physic = dyna2   //final collider for mesh
   cube.mesh.physic.dispose=false
@@ -269,7 +278,7 @@ async function run_simulation() {
     //rapierJS
     let dyna = RAPIER.RigidBodyDesc.dynamic().setTranslation(pos.x, pos.y, pos.z);
     let dyna2 = world.createRigidBody(dyna);
-    let clDesc = RAPIER.ColliderDesc.cuboid(1, 1, 1)
+    let clDesc = RAPIER.ColliderDesc.cuboid(.5, .5, .5)
     let cl = world.createCollider(clDesc, dyna2)
     cube.mesh.physic = false
     cube2.mesh.physic = dyna2   //final collider for mesh
