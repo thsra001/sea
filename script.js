@@ -5,7 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader"
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry"
-
+import {ImprovedNoise} from "three/examples/jsm/math/ImprovedNoise";
 run_simulation()
 async function run_simulation() {
   console.log("start loading rapier")
@@ -221,11 +221,13 @@ function onWindowResize() {
     object3D.removeFromParent(); // the parent might be the scene or another Object3D, but it is sure to be removed this way
     return true;
   }
+  // create perlin noise object
+  const perlin = new ImprovedNoise();
   // add object for pickables
   let pickable = new THREE.Object3D();
   scene.add(pickable);
   // add textures for floor
-  let texture = loadImg('tex/floor/grass32.jpg', 4, 4);
+  let texture = loadImg('tex/floor/sea32.jpg', 4, 4);
   // the floor
   const cube = {
     // The geometry: the shape & size of the object
@@ -241,9 +243,10 @@ function onWindowResize() {
   const position = cube.geometry.attributes.position.array;
   const heightmap = []
   for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.42 * Math.sin(position[i] + randInt(1, 151))
+    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], 2.3)
     heightmap.push([position[i + 1] * 1000])
   }
+  console.log(heightmap)
   cube.mesh.rotateX(toRad(270))
   cube.mesh.geometry.verticesNeedUpdate = true;
 
