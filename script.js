@@ -23,7 +23,7 @@ async function run_simulation() {
     10000
   );
   camera.position.y = 1.6;
-
+ let time = 1.25
   // add random functions
   function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -240,13 +240,12 @@ function onWindowResize() {
   //(geometry as THREE.BufferGeometry).attributes.position.needsUpdate = true
   cube.mesh.geometry.verticesNeedUpdate = true;
   console.log(cube)
-  const position = cube.geometry.attributes.position.array;
-  const heightmap = []
+  let position = cube.geometry.attributes.position.array;
+  let heightmap = []
   for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], 2.3)
+    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], time)
     heightmap.push([position[i + 1] * 1000])
   }
-  console.log(heightmap)
   cube.mesh.rotateX(toRad(270))
   cube.mesh.geometry.verticesNeedUpdate = true;
 
@@ -350,6 +349,15 @@ function onWindowResize() {
   let speed = 0.15
   // RENDER LOOP -----------------------------
   function render() {
+    // shift sea
+     time+=1.02
+     position = cube.geometry.attributes.position.array;
+     heightmap=[]
+  for (let i = 0; i < position.length; i += 3) {
+    position[i + 2] = 0.35 * perlin.noise(position[i], position[i+1], time/200)
+    heightmap.push(position[i +2])
+  }
+    cube.geometry.attributes.position.needsUpdate = true;
     // do a tick on holder holder
     holdHold.tick()
     world.step();
