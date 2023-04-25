@@ -227,11 +227,11 @@ function onWindowResize() {
   let pickable = new THREE.Object3D();
   scene.add(pickable);
   // add textures for floor
-  let texture = loadImg('tex/floor/sea32.jpg', 4, 4);
+  let texture = loadImg('tex/floor/sea32.jpg', 40, 40);
   // the floor
   const cube = {
     // The geometry: the shape & size of the object
-    geometry: new THREE.PlaneGeometry(30, 30, 15, 15),
+    geometry: new THREE.PlaneGeometry(300, 300, 150, 150),
     // The material: the appearance (color, texture) of the object
     material: new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture })
   };
@@ -253,7 +253,7 @@ function onWindowResize() {
   let importcoords = cube.mesh.geometry.attributes.position.array
   let dyna = RAPIER.RigidBodyDesc.fixed()
   let dyna2 = world.createRigidBody(dyna);
-  let clDesc = RAPIER.ColliderDesc.cuboid(15, 0.1, 15)
+  let clDesc = RAPIER.ColliderDesc.cuboid(150, 0.1, 150)
   let cl = world.createCollider(clDesc, dyna2)
   cube.mesh.physic = dyna2   //final collider for mesh
   cube.mesh.physic.dispose=false
@@ -354,7 +354,7 @@ function onWindowResize() {
      position = cube.geometry.attributes.position.array;
      heightmap=[]
   for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.35 * perlin.noise(position[i], position[i+1], now*0.0002)
+    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], now*0.0002)
     heightmap.push(position[i +2])
   }
     cube.geometry.attributes.position.needsUpdate = true;
