@@ -23,7 +23,7 @@ async function run_simulation() {
     10000
   );
   camera.position.y = 1.6;
- let time = 1.25
+ let now = 1
   // add random functions
   function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -243,7 +243,7 @@ function onWindowResize() {
   let position = cube.geometry.attributes.position.array;
   let heightmap = []
   for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], time)
+    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], now)
     heightmap.push([position[i + 1] * 1000])
   }
   cube.mesh.rotateX(toRad(270))
@@ -347,14 +347,14 @@ function onWindowResize() {
     }
   }
   let speed = 0.15
+  let time=0
   // RENDER LOOP -----------------------------
-  function render() {
+  function render(now) {
     // shift sea
-     time+=1.02
      position = cube.geometry.attributes.position.array;
      heightmap=[]
   for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.35 * perlin.noise(position[i], position[i+1], time/200)
+    position[i + 2] = 0.35 * perlin.noise(position[i], position[i+1], now*0.0002)
     heightmap.push(position[i +2])
   }
     cube.geometry.attributes.position.needsUpdate = true;
