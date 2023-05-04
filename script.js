@@ -23,7 +23,7 @@ async function run_simulation() {
     10000
   );
   camera.position.y = 1.6;
- let now = 1
+ let now,then = 0
   // add random functions
   function randInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -145,6 +145,33 @@ function onWindowResize() {
         break;
     }
   }
+  //  glb / gltf loader
+  const glbloader = new GLTFLoader();
+  function glbload(path,whendone){
+    glbloader.load( path, function ( gltf ) {
+	    whendone(gltf)
+    }, undefined, function ( error ) {
+	    console.error( error );
+    } );
+  }
+  //boat and wood texture
+  let woodTex=new THREE.MeshStandardMaterial({
+        color: 0xffffff,map:loadImg("tex/floor/wood32.jpg",1,1)})
+  
+  glbload("tex/modals/rowboat.glb",function (gltf) {
+    console.log('loaded boat',gltf)
+    gltf.scene.children[0].material=woodTex
+    scene.add(gltf.scene)
+    
+  })
+  //oar
+  glbload("tex/modals/oar.glb",function (gltf) {
+    console.log('loaded oar',gltf)
+    gltf.scene.children[0].material=woodTex
+    gltf.scene.children[0].position.set(1,2,0)
+    scene.add(gltf.scene)
+  })
+  
   var faar = 3
   // raycast and hold if hold
   var isHolding = false // if u ar holding sumtin
@@ -242,10 +269,6 @@ function onWindowResize() {
   console.log(cube)
   let position = cube.geometry.attributes.position.array;
   let heightmap = []
-  for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], now)
-    heightmap.push([position[i + 1] * 1000])
-  }
   cube.mesh.rotateX(toRad(270))
   cube.mesh.geometry.verticesNeedUpdate = true;
 
@@ -261,7 +284,7 @@ function onWindowResize() {
 
 
   // physics cube
-  for (let fi = -1; fi < 25; fi++) { create(new THREE.Vector3(randInt(-15, 15), 3, randInt(-15, 15))) }
+  for (let fi = 0; fi < 60; fi++) { create(new THREE.Vector3(randInt(-150, 150), 3, randInt(-150, 150))) }
   create(new THREE.Vector3(0, 3, 0))
   function create(pos) {
     let texture4 = loadImg('tex/blocks/crat.jpg', 1, 1);
@@ -293,7 +316,7 @@ function onWindowResize() {
 
   loader.load('./tex/bigblue.json', function(font) {
 
-    const geometry = new TextGeometry('cube stacking simulator test', {
+    const geometry = new TextGeometry('sea', {
       font: font,
       size: 80,
       height: 5,
@@ -307,7 +330,7 @@ function onWindowResize() {
     let mat = new THREE.MeshStandardMaterial({ color: 0xffffff });
     let textMesh1 = new THREE.Mesh(geometry, mat);
     textMesh1.scale.set(0.01, 0.01, 0.01)
-    textMesh1.position.set(-11, 3, -15)
+    textMesh1.position.set(-2, 3, -15)
     console.log(textMesh1); scene.add(textMesh1)
 
   });
@@ -346,18 +369,34 @@ function onWindowResize() {
       }
     }
   }
-  let speed = 0.15
+  let a // bag for stopping NaN values
+  let nowsec
+  let new_fps,old_fps=30
+  let speed = 0.000
   let time=0
-  // RENDER LOOP -----------------------------
+  
+  // RENDER LOOP -----------------------------!!!!!!!!!!!!!!!
+  
   function render(now) {
+    // calculate delta
+     nowsec=now * 0.001
+     let delta = nowsec - then;
+     delta = delta || 5
+     then = nowsec;
+     new_fps=1/delta
+
+     new_fps = old_fps * 0.9999 + new_fps * 0.0001
     // shift sea
      position = cube.geometry.attributes.position.array;
      heightmap=[]
   for (let i = 0; i < position.length; i += 3) {
-    position[i + 2] = 0.72 * perlin.noise(position[i], position[i+1], now*0.0002)
+    a= 0.72 * perlin.noise(position[i], position[i+1], now*0.00001*(new_fps))
+    a = a || 0
+    position[i + 2] = a
     heightmap.push(position[i +2])
   }
     cube.geometry.attributes.position.needsUpdate = true;
+    cube.material.map.offset.add(new THREE.Vector2(0.00002*new_fps,0.00004*new_fps))
     // do a tick on holder holder
     holdHold.tick()
     world.step();
@@ -390,21 +429,21 @@ function onWindowResize() {
     stare()
     // move player 
     if (ft) {
-      controls.moveForward(speed);
+      controls.moveForward(speed*new_fps);
     }
     if (bk) {
-      controls.moveForward(0 - speed);
+      controls.moveForward(0 - speed*new_fps);
     }
     if (lf) {
-      controls.moveRight(0 - speed);
+      controls.moveRight(0 - speed*new_fps);
     }
     if (rt) {
-      controls.moveRight(speed);
+      controls.moveRight(speed*new_fps);
     }
     if (sprint) {
-      speed = 0.2
+      speed = 0.005
     } else {
-      speed = 0.1
+      speed = 0.002
     }
 
     // Render the scene and the camera
