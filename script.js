@@ -154,22 +154,24 @@ function onWindowResize() {
 	    console.error( error );
     } );
   }
+  var sitting=false
   //boat and wood texture
   let woodTex=new THREE.MeshStandardMaterial({
-        color: 0xffffff,map:loadImg("tex/floor/wood32.jpg",1,1)})
+        color: 0xffffff,map:loadImg("tex/floor/wood32.jpg",1,1)
+  })
+  let sten=new THREE.MeshStandardMaterial({
+        color: 0xffffff,map:loadImg("tex/floor/wood32.jpg",1,1),colorWrite:false
+  })
   
   glbload("tex/modals/rowboat.glb",function (gltf) {
     console.log('loaded boat',gltf)
+    gltf.scene.position.setY(-.1)
     gltf.scene.children[0].material=woodTex
+    gltf.scene.children[1].material=sten
+    gltf.scene.children[2].material=woodTex
+    gltf.scene.children[3].material=woodTex
     scene.add(gltf.scene)
     
-  })
-  //oar
-  glbload("tex/modals/oar.glb",function (gltf) {
-    console.log('loaded oar',gltf)
-    gltf.scene.children[0].material=woodTex
-    gltf.scene.children[0].position.set(1,2,0)
-    scene.add(gltf.scene)
   })
   
   var faar = 3
@@ -260,13 +262,12 @@ function onWindowResize() {
     // The geometry: the shape & size of the object
     geometry: new THREE.PlaneGeometry(300, 300, 150, 150),
     // The material: the appearance (color, texture) of the object
-    material: new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture })
+    material: new THREE.MeshBasicMaterial({ color: 0xffffff, map: texture})
   };
   cube.mesh = new THREE.Mesh(cube.geometry, cube.material);
   scene.add(cube.mesh);
   //(geometry as THREE.BufferGeometry).attributes.position.needsUpdate = true
   cube.mesh.geometry.verticesNeedUpdate = true;
-  console.log(cube)
   let position = cube.geometry.attributes.position.array;
   let heightmap = []
   cube.mesh.rotateX(toRad(270))
@@ -428,6 +429,7 @@ function onWindowResize() {
     } //stare highlight on pickable
     stare()
     // move player 
+    if (!sitting) {
     if (ft) {
       controls.moveForward(speed*new_fps);
     }
@@ -444,7 +446,7 @@ function onWindowResize() {
       speed = 0.005
     } else {
       speed = 0.002
-    }
+    }}
 
     // Render the scene and the camera
     renderer.render(scene, camera);
