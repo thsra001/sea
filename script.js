@@ -43,8 +43,6 @@ async function run_simulation() {
   const renderer = new THREE.WebGLRenderer({ canvas: document.querySelector("#c"), antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setClearColor(0xaaaaaa, 1);
-  // Append the renderer canvas into <body>
-  document.body.appendChild(renderer.domElement);
   // add canvas rescaling
   window.addEventListener( 'resize', onWindowResize, false );
 
@@ -65,18 +63,35 @@ function onWindowResize() {
     'tex/sky/nz.png',
   ]);
   scene.background = skytexture;
-
+  camera.rotation.y = -Math.PI * 0.5;
   //add Controls
-  const controls = new PointerLockControls(camera, renderer.domElement);
+  let playing=false
+  const controls = new PointerLockControls(camera, document.querySelector("#c"));
   scene.add(controls.getObject())
   // add eventListners
   var ft, lf, bk, rt, debug, sprint = false
-  const instructions = renderer.domElement.addEventListener('click', function() {
-    controls.lock();
+  //menu
+  let blur = document.querySelector("#menu")
+  let playbut = document.querySelector("#play")
+  let menuscr=document.querySelector("#start")
+  let pausescr=document.querySelector("#pauser")
+  playbut.addEventListener("click", function(event){
+    console.log(event,event.target)
+    menuscr.style.display = 'none';
+    blur.style.display = 'none';
+    controls.lock(); 
+    playing=true
   });
-  renderer.domElement.addEventListener('keydown', keydown);
-  renderer.domElement.addEventListener('keyup', keyup);
-  //Attach listeners to functions
+  controls.addEventListener( 'unlock', function () {
+    pausescr.style.display = 'block';
+    blur.style.display = 'block';
+    playing=false
+
+  } );
+  
+//Attach listeners to functions
+  document.addEventListener('keydown', keydown);
+  document.addEventListener('keyup', keyup);
   var camPos = camera.position
   function keydown(e) {
     console.log(e.code)
@@ -317,7 +332,7 @@ function onWindowResize() {
 
   loader.load('./tex/bigblue.json', function(font) {
 
-    const geometry = new TextGeometry('sea', {
+    const geometry = new TextGeometry('Thsra001\'s boat game', {
       font: font,
       size: 80,
       height: 5,
@@ -331,7 +346,10 @@ function onWindowResize() {
     let mat = new THREE.MeshStandardMaterial({ color: 0xffffff });
     let textMesh1 = new THREE.Mesh(geometry, mat);
     textMesh1.scale.set(0.01, 0.01, 0.01)
-    textMesh1.position.set(-2, 3, -15)
+    textMesh1.geometry.computeBoundingBox()
+    textMesh1.geometry.center();
+    textMesh1.position.set(15, 3, 0)
+    textMesh1.rotateY(toRad(-90))
     console.log(textMesh1); scene.add(textMesh1)
 
   });
@@ -373,7 +391,7 @@ function onWindowResize() {
   let a // bag for stopping NaN values
   let nowsec
   let new_fps,old_fps=30
-  let speed = 0.000
+  let speed = 0.0001
   let time=0
   
   // RENDER LOOP -----------------------------!!!!!!!!!!!!!!!
@@ -401,7 +419,6 @@ function onWindowResize() {
     // do a tick on holder holder
     holdHold.tick()
     world.step();
-
     for (let x = 0; x < physicObj.length; x++) {
       if (physicObj[x].mesh.physic.dispose){
         physicObj.splice(x, 1);
@@ -429,7 +446,10 @@ function onWindowResize() {
     } //stare highlight on pickable
     stare()
     // move player 
-    if (!sitting) {
+    if(false){
+      controls.unlock()
+    }
+    if (!sitting && playing) {
     if (ft) {
       controls.moveForward(speed*new_fps);
     }
