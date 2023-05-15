@@ -63,7 +63,6 @@ function onWindowResize() {
     'tex/sky/nz.png',
   ]);
   scene.background = skytexture;
-  camera.rotation.y = -Math.PI * 0.5;
   //add Controls
   let playing=false
   const controls = new PointerLockControls(camera, document.querySelector("#c"));
@@ -75,6 +74,8 @@ function onWindowResize() {
   let playbut = document.querySelector("#play")
   let menuscr=document.querySelector("#start")
   let pausescr=document.querySelector("#pauser")
+  let resume=document.querySelector("#res1")
+  let exi=document.querySelector("#exi")
   playbut.addEventListener("click", function(event){
     console.log(event,event.target)
     menuscr.style.display = 'none';
@@ -82,6 +83,18 @@ function onWindowResize() {
     controls.lock(); 
     playing=true
   });
+  resume.addEventListener("click",function(){
+     console.log(event,event.target)
+    menuscr.style.display = 'none';
+    blur.style.display = 'none';
+    controls.lock(); 
+    playing=true
+  })
+  exi.addEventListener("click",function(){
+     console.log(event,event.target)
+    menuscr.style.display = 'block';
+    pausescr.style.display = 'none';
+  })
   controls.addEventListener( 'unlock', function () {
     pausescr.style.display = 'block';
     blur.style.display = 'block';
